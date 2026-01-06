@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:blog_ui/http/index.dart';
@@ -23,6 +24,9 @@ class LoginPageController extends GetxController {
   Web3App? wcClient;
   SessionData? sessionData;
   
+  // Blog API 专用的 Dio 实例（不带 Bilibili 的请求头）
+  late final Dio blogDio;
+  
   // 支持的链
   final supportedChains = [
     'eip155:1', // Ethereum Mainnet
@@ -33,6 +37,18 @@ class LoginPageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    // 初始化 Blog API 专用的 Dio 实例
+    blogDio = Dio(BaseOptions(
+      baseUrl: HttpString.blogApiBaseUrl,
+      connectTimeout: const Duration(milliseconds: 10000),
+      receiveTimeout: const Duration(milliseconds: 10000),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    ));
+    
     if (!kIsWeb) {
       _initWalletConnect();
     }
@@ -219,7 +235,14 @@ class LoginPageController extends GetxController {
       if (kIsWeb) {
         // Web 平台从 MetaMask 获取
         final chainId = await Web3JsInterop.getChainId();
-        return chainId ?? '1'; // 默认以太坊主网
+        if (chainId != null && chainId.isNotEmpty) {
+          // 如果是十六进制格式（如 0x1），转换为十进制
+          if (chainId.startsWith('0x')) {
+            return int.parse(chainId.substring(2), radix: 16).toString();
+          }
+          return chainId;
+        }
+        return '1'; // 默认以太坊主网
       } else if (sessionData != null) {
         // 移动端从 WalletConnect session 获取
         final accounts = sessionData!.namespaces.values.first.accounts;
@@ -267,16 +290,16 @@ class LoginPageController extends GetxController {
       
       // 2. 从后端获取 nonce
       SmartDialog.showToast('正在获取认证信息...');
-      final nonceResponse = await Request().get(
-        '${HttpString.blogApiBaseUrl}/api/auth/web3-login/nonce/$chainId',
+      final nonceResponse = await blogDio.get(
+        '/api/auth/web3-login/nonce/$chainId',
       );
       
-      if (nonceResponse['code'] != 0) {
-        SmartDialog.showToast(nonceResponse['message'] ?? '获取 nonce 失败');
+      if (nonceResponse.data['code'] != 0) {
+        SmartDialog.showToast(nonceResponse.data['message'] ?? '获取 nonce 失败');
         return;
       }
       
-      final nonce = nonceResponse['data']['nonce'];
+      final nonce = nonceResponse.data['data'].toString();
       final message = 'Sign this message to authenticate with Blog UI\nNonce: $nonce';
       
       // 3. 请求签名
@@ -289,26 +312,24 @@ class LoginPageController extends GetxController {
       }
 
       // 4. 发送到后端验证
-      final response = await Request().post(
-        '${HttpString.blogApiBaseUrl}/api/auth/web3-login',
+      final response = await blogDio.post(
+        '/api/auth/web3-login',
         data: {
           'address': walletAddress.value,
-          'chain_id': chainId,
           'message': message,
           'signature': signature,
-          'nonce': nonce,
         },
       );
 
-      if (response['code'] == 0) {
+      if (response.data['code'] == 0) {
         // 保存用户信息
-        final userInfo = response['data'];
+        final userInfo = response.data['data'];
         GStrorage.userInfo.put('userInfoCache', userInfo);
         
         SmartDialog.showToast('登录成功！');
         Get.back();
       } else {
-        SmartDialog.showToast(response['message'] ?? '登录失败');
+        SmartDialog.showToast(response.data['message'] ?? '登录失败');
       }
     } catch (e) {
       print('Authentication error: $e');
