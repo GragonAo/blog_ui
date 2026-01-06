@@ -1,5 +1,10 @@
 class HttpString {
-  static const String baseUrl = 'https://www.bilibili.com';
+  // Blog 后端 API 地址 - 请根据实际情况修改
+  static const String blogApiBaseUrl = 'http://192.168.40.132:8080'; // 开发环境
+  // static const String blogApiBaseUrl = 'https://your-domain.com'; // 生产环境
+  
+  // 原有的 Bilibili API 地址（如果其他功能还需要用到）
+  static const String baseUrl = 'http://192.168.40.132:8080';
   static const String apiBaseUrl = 'https://api.bilibili.com';
   static const String tUrl = 'https://api.vc.bilibili.com';
   static const String appBaseUrl = 'https://app.bilibili.com';

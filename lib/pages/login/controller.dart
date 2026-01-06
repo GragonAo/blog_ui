@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:blog_ui/http/index.dart';
+import 'package:blog_ui/http/constants.dart';
 import 'package:blog_ui/utils/storage.dart';
 import 'package:blog_ui/utils/web3_js_interop.dart';
 import 'package:blog_ui/config/web3_config.dart';
@@ -212,6 +213,27 @@ class LoginPageController extends GetxController {
     );
   }
 
+  // 获取当前链 ID
+  Future<String> _getCurrentChainId() async {
+    try {
+      if (kIsWeb) {
+        // Web 平台从 MetaMask 获取
+        final chainId = await Web3JsInterop.getChainId();
+        return chainId ?? '1'; // 默认以太坊主网
+      } else if (sessionData != null) {
+        // 移动端从 WalletConnect session 获取
+        final accounts = sessionData!.namespaces.values.first.accounts;
+        if (accounts.isNotEmpty) {
+          final chainId = accounts.first.split(':')[1];
+          return chainId;
+        }
+      }
+    } catch (e) {
+      print('Get chain ID error: $e');
+    }
+    return '1'; // 默认以太坊主网
+  }
+
   // 请求签名
   Future<String?> requestSignature(String message) async {
     try {
@@ -240,11 +262,24 @@ class LoginPageController extends GetxController {
   // 与后端认证
   Future<void> _authenticateWithBackend() async {
     try {
-      // 生成随机消息
-      final nonce = DateTime.now().millisecondsSinceEpoch.toString();
+      // 1. 获取当前链 ID
+      final chainId = await _getCurrentChainId();
+      
+      // 2. 从后端获取 nonce
+      SmartDialog.showToast('正在获取认证信息...');
+      final nonceResponse = await Request().get(
+        '${HttpString.blogApiBaseUrl}/api/auth/web3-login/nonce/$chainId',
+      );
+      
+      if (nonceResponse['code'] != 0) {
+        SmartDialog.showToast(nonceResponse['message'] ?? '获取 nonce 失败');
+        return;
+      }
+      
+      final nonce = nonceResponse['data']['nonce'];
       final message = 'Sign this message to authenticate with Blog UI\nNonce: $nonce';
       
-      // 请求签名
+      // 3. 请求签名
       SmartDialog.showToast('请在钱包中签名以完成认证');
       final signature = await requestSignature(message);
       
@@ -253,13 +288,15 @@ class LoginPageController extends GetxController {
         return;
       }
 
-      // 发送到后端验证
+      // 4. 发送到后端验证
       final response = await Request().post(
-        '/api/auth/web3-login',
+        '${HttpString.blogApiBaseUrl}/api/auth/web3-login',
         data: {
           'address': walletAddress.value,
+          'chain_id': chainId,
           'message': message,
           'signature': signature,
+          'nonce': nonce,
         },
       );
 
