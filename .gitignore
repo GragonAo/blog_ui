@@ -1,0 +1,68 @@
+# ----------------------------------------------------------------------------
+# Flutter/Dart 核心
+# ----------------------------------------------------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# 符号链接与导出
+/lib/generated_plugin_registrant.dart
+
+# ----------------------------------------------------------------------------
+# 操作系统/编译产物 (Android, iOS, Desktop)
+# ----------------------------------------------------------------------------
+# Android
+*.apk
+*.aab
+*.aar
+*.jks
+android/local.properties
+android/flutter_application_1_android.iml
+
+# iOS/macOS
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
+**/doc/api/
+.ios/
+.macos/
+
+# Windows/Linux
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# ----------------------------------------------------------------------------
+# IDE 配置文件 (IntelliJ, VS Code)
+# ----------------------------------------------------------------------------
+# IntelliJ/Android Studio
+.idea/
+*.iml
+*.iws
+
+# Visual Studio Code
+.vscode/
+
+# ----------------------------------------------------------------------------
+# 你的项目特有忽略项 (基于目录结构)
+# ----------------------------------------------------------------------------
+# 如果你的 web3_config.dart 包含私钥或敏感 API Key，建议忽略
+# lib/config/web3_config.dart
+
+# 各种日志文件
+*.log
+
+# 单元测试缓存
+.test_runtime/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db

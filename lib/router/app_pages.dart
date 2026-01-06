@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:blog_ui/pages/home_page.dart';
+import 'package:blog_ui/pages/login/view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -13,6 +14,8 @@ class Routes {
   static final List<GetPage<dynamic>> getPages = [
     // 首页(推荐)
     CustomGetPage(name: '/', page: () => const HomePage()),
+    // 登录页
+    CustomGetPage(name: '/login', page: () => const LoginPage()),
   ];
 }
 

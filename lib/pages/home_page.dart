@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:get/get.dart';
 
 // 确保这些导入路径在你的项目中是正确的
 import '../models/post_model.dart';
@@ -130,6 +131,11 @@ class _HomePageState extends State<HomePage> {
             title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87, fontSize: 18)),
             centerTitle: true,
             actions: [
+              // 添加登录按钮用于测试
+              IconButton(
+                icon: const Icon(LucideIcons.user, color: Colors.black87),
+                onPressed: () => Get.toNamed('/login'),
+              ),
               IconButton(
                 icon: const Icon(LucideIcons.search, color: Colors.black87),
                 onPressed: () {},

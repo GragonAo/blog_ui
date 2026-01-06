@@ -29,8 +29,37 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>flutter_application_1</title>
+  <title>Blog UI - Web3 Platform</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- MetaMask Detection Script -->
+  <script>
+    // 检测 MetaMask 是否安装
+    window.addEventListener('load', async () => {
+      if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask is installed!');
+        
+        // 监听账户变化
+        window.ethereum.on('accountsChanged', (accounts) => {
+          console.log('Accounts changed:', accounts);
+        });
+        
+        // 监听链变化
+        window.ethereum.on('chainChanged', (chainId) => {
+          console.log('Chain changed:', chainId);
+          // 刷新页面以重新连接
+          window.location.reload();
+        });
+        
+        // 监听断开连接
+        window.ethereum.on('disconnect', (error) => {
+          console.log('Disconnected:', error);
+        });
+      } else {
+        console.log('MetaMask is not installed');
+      }
+    });
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
