@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import 'create_post_page.dart';
+import '../post/create_post_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

@@ -1,16 +1,14 @@
-import 'dart:convert';
+import 'package:blog_ui/http/api.dart';
+import 'package:blog_ui/http/init.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
-import 'package:web3dart/web3dart.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
-import 'package:blog_ui/http/index.dart';
-import 'package:blog_ui/http/constants.dart';
 import 'package:blog_ui/utils/storage.dart';
 import 'package:blog_ui/utils/web3_js_interop.dart';
 import 'package:blog_ui/config/web3_config.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:blog_ui/services/loggeer.dart';
 
 class LoginPageController extends GetxController {
   // 钱包地址
@@ -23,37 +21,17 @@ class LoginPageController extends GetxController {
   // WalletConnect
   Web3App? wcClient;
   SessionData? sessionData;
-  
-  // Blog API 专用的 Dio 实例（不带 Bilibili 的请求头）
-  late final Dio blogDio;
-  
-  // 支持的链
-  final supportedChains = [
-    'eip155:1', // Ethereum Mainnet
-    'eip155:137', // Polygon
-    'eip155:56', // BSC
-  ];
 
   @override
   void onInit() {
     super.onInit();
-    
-    // 初始化 Blog API 专用的 Dio 实例
-    blogDio = Dio(BaseOptions(
-      baseUrl: HttpString.blogApiBaseUrl,
-      connectTimeout: const Duration(milliseconds: 10000),
-      receiveTimeout: const Duration(milliseconds: 10000),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
     
     if (!kIsWeb) {
       _initWalletConnect();
     }
     _checkExistingSession();
   }
+
 
   @override
   void onClose() {
@@ -75,7 +53,7 @@ class LoginPageController extends GetxController {
         ),
       );
     } catch (e) {
-      print('WalletConnect initialization error: $e');
+      getLogger().e('WalletConnect initialization error', error: e);
     }
   }
 
@@ -127,16 +105,6 @@ class LoginPageController extends GetxController {
         walletAddress.value = address;
         isConnected.value = true;
         
-        // 监听账户变化
-        Web3JsInterop.onAccountsChanged((accounts) {
-          if (accounts.isEmpty) {
-            disconnect();
-          } else if (accounts.first != walletAddress.value) {
-            walletAddress.value = accounts.first;
-            SmartDialog.showToast('账户已切换');
-          }
-        });
-        
         await _authenticateWithBackend();
         SmartDialog.showToast('MetaMask 连接成功');
       } else {
@@ -144,7 +112,6 @@ class LoginPageController extends GetxController {
       }
     } catch (e) {
       SmartDialog.showToast('连接失败: $e');
-      print('MetaMask connection error: $e');
     } finally {
       isConnecting.value = false;
     }
@@ -199,7 +166,6 @@ class LoginPageController extends GetxController {
       SmartDialog.showToast('钱包连接成功');
     } catch (e) {
       SmartDialog.showToast('连接失败: $e');
-      print('WalletConnect error: $e');
     } finally {
       isConnecting.value = false;
     }
@@ -208,7 +174,6 @@ class LoginPageController extends GetxController {
   // 显示 QR 码对话框
   void _showQRCode(String uri) {
     // 可以使用 SmartDialog 或 showDialog 显示二维码
-    // 这里提供一个简单的实现思路
     Get.dialog(
       AlertDialog(
         title: const Text('扫描二维码连接'),
@@ -252,7 +217,7 @@ class LoginPageController extends GetxController {
         }
       }
     } catch (e) {
-      print('Get chain ID error: $e');
+      SmartDialog.showToast('获取链 ID 失败: $e');
     }
     return '1'; // 默认以太坊主网
   }
@@ -276,7 +241,7 @@ class LoginPageController extends GetxController {
         return result.toString();
       }
     } catch (e) {
-      print('Signature error: $e');
+      getLogger().e('Signature error', error: e);
       SmartDialog.showToast('签名失败: $e');
     }
     return null;
@@ -290,8 +255,9 @@ class LoginPageController extends GetxController {
       
       // 2. 从后端获取 nonce
       SmartDialog.showToast('正在获取认证信息...');
-      final nonceResponse = await blogDio.get(
-        '/api/auth/web3-login/nonce/$chainId',
+      final nonceResponse = await Request().get(
+        Api.blogLoginWeb3Nonce,
+        data: {'chain_id': chainId,'address': walletAddress.value},
       );
       
       if (nonceResponse.data['code'] != 0) {
@@ -312,27 +278,23 @@ class LoginPageController extends GetxController {
       }
 
       // 4. 发送到后端验证
-      final response = await blogDio.post(
-        '/api/auth/web3-login',
+      final response = await Request().post(
+        Api.blogLoginWeb3,
         data: {
-          'address': walletAddress.value,
           'message': message,
           'signature': signature,
         },
       );
 
       if (response.data['code'] == 0) {
-        // 保存用户信息
-        final userInfo = response.data['data'];
-        GStrorage.userInfo.put('userInfoCache', userInfo);
-        
+        final accessToken = response.data['data']['access_token'].toString();
+        await GStrorage.localCache.put(LocalCacheKey.accessToken, accessToken);
         SmartDialog.showToast('登录成功！');
         Get.back();
       } else {
         SmartDialog.showToast(response.data['message'] ?? '登录失败');
       }
     } catch (e) {
-      print('Authentication error: $e');
       SmartDialog.showToast('认证失败: $e');
     }
   }
@@ -346,14 +308,13 @@ class LoginPageController extends GetxController {
           reason: Errors.getSdkError(Errors.USER_DISCONNECTED),
         );
       }
-      
       walletAddress.value = '';
       isConnected.value = false;
       sessionData = null;
       
       SmartDialog.showToast('已断开连接');
     } catch (e) {
-      print('Disconnect error: $e');
+      SmartDialog.showToast('断开连接失败: $e');
     }
   }
 }

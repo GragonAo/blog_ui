@@ -9,36 +9,17 @@ import '../utils/storage.dart';
 class ApiInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // print("请求之前");
-    // 在请求之前添加头部或认证信息
     Box localCache = GStrorage.localCache;
-    options.headers['Authorization'] = 'Bearer ${localCache.get('accessToken', defaultValue: '')}';
+    var auth = localCache.get('authToken', defaultValue: null);
+    if(auth != null){
+      options.headers['Authorization'] = 'Bearer ${auth.accessToken}';
+    }
     options.headers['Content-Type'] = 'application/json';
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    try {
-      if (response.statusCode == 302) {
-        final List<String> locations = response.headers['location']!;
-        if (locations.isNotEmpty) {
-          if (locations.first.startsWith('https://www.mcbbs.net')) {
-            final Uri uri = Uri.parse(locations.first);
-            final String? accessKey = uri.queryParameters['access_key'];
-            final String? mid = uri.queryParameters['mid'];
-            try {
-              Box localCache = GStrorage.localCache;
-              localCache.put(LocalCacheKey.accessKey,
-                  <String, String?>{'mid': mid, 'value': accessKey});
-            } catch (_) {}
-          }
-        }
-      }
-    } catch (err) {
-      print('ApiInterceptor: $err');
-    }
-
     handler.next(response);
   }
 

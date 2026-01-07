@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../models/post_model.dart';
-import '../widgets/markdown_editor_toolbar.dart';
+import '../../models/post_model.dart';
+import '../../widgets/markdown_editor_toolbar.dart';
 // import '../widgets/advanced_markdown_body.dart';
 
 class CreatePostPage extends StatefulWidget {

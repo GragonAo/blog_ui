@@ -20,6 +20,7 @@ class GStrorage {
       await Hive.initFlutter('$path/hive');
     }
     regAdapter();
+
     // 登录用户信息
     userInfo = await Hive.openBox(
       'userInfo',
@@ -146,8 +147,7 @@ class SettingBoxKey {
 
 class LocalCacheKey {
   static const String 
-      // access_key
-      accessKey = 'accessKey',
+      accessToken = 'accessToken',
 
       wbiKeys = 'wbiKeys',
       timeStamp = 'timeStamp',

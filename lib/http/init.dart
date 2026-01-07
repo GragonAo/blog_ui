@@ -1,16 +1,12 @@
 // ignore_for_file: avoid_print
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:blog_ui/utils/id_utils.dart';
 import 'package:blog_ui/utils/storage.dart';
-import 'package:blog_ui/utils/utils.dart';
 import 'package:blog_ui/http/constants.dart';
 import 'package:blog_ui/http/interceptor.dart';
 class Request {
@@ -27,84 +23,6 @@ class Request {
       RegExp(r'<meta name="spm_prefix" content="([^"]+?)">');
   static String? buvid;
 
-  /// 设置cookie
-  static setCookie() async {
-    Box userInfoCache = GStrorage.userInfo;
-    Box setting = GStrorage.setting;
-    
-    // Web 平台不支持 CookieManager，直接返回
-    if (kIsWeb) {
-      final userInfo = userInfoCache.get('userInfoCache');
-      setOptionsHeaders(userInfo, userInfo != null && userInfo.mid != null);
-      return;
-    }
-    
-    final String cookiePath = await Utils.getCookiePath();
-    final PersistCookieJar cookieJar = PersistCookieJar(
-      ignoreExpires: true,
-      storage: FileStorage(cookiePath),
-    );
-    cookieManager = CookieManager(cookieJar);
-    dio.interceptors.add(cookieManager);
-    final List<Cookie> cookie = await cookieManager.cookieJar
-        .loadForRequest(Uri.parse(HttpString.baseUrl));
-    final userInfo = userInfoCache.get('userInfoCache');
-    if (userInfo != null && userInfo.mid != null) {
-      final List<Cookie> cookie2 = await cookieManager.cookieJar
-          .loadForRequest(Uri.parse(HttpString.tUrl));
-      if (cookie2.isEmpty) {
-        try {
-          await Request().get(HttpString.tUrl);
-        } catch (e) {
-          log("setCookie, ${e.toString()}");
-        }
-      }
-    }
-    setOptionsHeaders(userInfo, userInfo != null && userInfo.mid != null);
-    String baseUrlType = 'default';
-    setBaseUrl(type: baseUrlType);
-
-    final String cookieString = cookie
-        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-        .join('; ');
-
-    dio.options.headers['cookie'] = cookieString;
-  }
-
-  // 从cookie中获取 csrf token
-  static Future<String> getCsrf() async {
-    List<Cookie> cookies = await cookieManager.cookieJar
-        .loadForRequest(Uri.parse(HttpString.apiBaseUrl));
-    String token = '';
-    if (cookies.where((e) => e.name == 'bili_jct').isNotEmpty) {
-      token = cookies.firstWhere((e) => e.name == 'bili_jct').value;
-    }
-    return token;
-  }
-
-  static Future<String> getBuvid() async {
-    if (buvid != null) {
-      return buvid!;
-    }
-
-    final List<Cookie> cookies = await cookieManager.cookieJar
-        .loadForRequest(Uri.parse(HttpString.baseUrl));
-    buvid = cookies.firstWhere((cookie) => cookie.name == 'buvid3').value;
-    if (buvid == null) {
-      try {
-        var result = await Request().get(
-          "${HttpString.apiBaseUrl}/x/frontend/finger/spi",
-        );
-        buvid = result["data"]["b_3"].toString();
-      } catch (e) {
-        // 处理请求错误
-        buvid = '';
-        print("Error fetching buvid: $e");
-      }
-    }
-
-    return buvid!;
-  }
 
   static setOptionsHeaders(userInfo, bool status) {
     if (status) {
@@ -114,8 +32,6 @@ class Request {
     }
     dio.options.headers['env'] = 'prod';
     dio.options.headers['app-key'] = 'android64';
-    dio.options.headers['x-bili-aurora-zone'] = 'sh001';
-    dio.options.headers['referer'] = 'https://www.bilibili.com/';
   }
 
   /*
@@ -296,18 +212,5 @@ class Request {
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15';
     }
     return headerUa;
-  }
-
-  static setBaseUrl({String type = 'default'}) {
-    switch (type) {
-      case 'default':
-        dio.options.baseUrl = HttpString.apiBaseUrl;
-        break;
-      case 'bangumi':
-        dio.options.baseUrl = HttpString.bangumiBaseUrl;
-        break;
-      default:
-        dio.options.baseUrl = HttpString.apiBaseUrl;
-    }
   }
 }

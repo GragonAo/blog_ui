@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:blog_ui/pages/home_page.dart';
+import 'package:blog_ui/services/auth_service.dart';
+import 'package:blog_ui/services/loggeer.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -21,37 +22,34 @@ import 'package:blog_ui/utils/global_data_cache.dart';
 import 'package:blog_ui/utils/storage.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:catcher_2/catcher_2.dart';
-import './services/loggeer.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 配置 Web URL 策略，移除 # 号
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
+  
   MediaKit.ensureInitialized();
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await GStrorage.init();
-  clearLogs();
+  
+  // 初始化日志服务
+  await loggerService.init();
+  
   Request();
-  await Request.setCookie();
+  
+  // 初始化认证服务
+  Get.put(AuthService());
 
-  // 异常捕获 logo记录
-  final Catcher2Options releaseConfig;
-  if (kIsWeb) {
-    // Web 平台使用 SilentReportMode，不记录到文件
-    releaseConfig = Catcher2Options(
-      SilentReportMode(),
-      [],
-    );
-  } else {
-    // 原生平台记录到文件
-    final logFile = await getLogsPath();
-    releaseConfig = Catcher2Options(
-      SilentReportMode(),
-      logFile != null ? [FileHandler(logFile)] : [],
-    );
-  }
+  // 获取 Catcher2 配置
+  final catcherConfig = await loggerService.getCatcherConfig();
 
   Catcher2(
-    releaseConfig: releaseConfig,
+    releaseConfig: catcherConfig,
     runAppFunction: () {
       runApp(const MyApp());
     },
@@ -257,7 +255,7 @@ class BuildMainApp extends StatelessWidget {
       supportedLocales: const [Locale("zh", "CN"), Locale("en", "US")],
       fallbackLocale: const Locale("zh", "CN"),
       getPages: Routes.getPages,
-      home: const HomePage(),
+      initialRoute: '/',
       builder: (BuildContext context, Widget? child) {
         return FlutterSmartDialog(
           toastBuilder: (String msg) => CustomToast(msg: msg),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-import '../models/post_model.dart';
-import '../widgets/advanced_markdown_body.dart';
+import '../../models/post_model.dart';
+import '../../widgets/advanced_markdown_body.dart';
 
 class PostDetailPage extends StatelessWidget {
   final Post post;
