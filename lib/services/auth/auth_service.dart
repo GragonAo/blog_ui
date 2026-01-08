@@ -88,21 +88,23 @@ class AuthService extends GetxController {
 
     if (res.data['code'] == 0) {
       final token = res.data['data']['access_token'].toString();
-      final userInfoRes = await Request().get(Api.blogUserInfo);
-      if(userInfoRes.data['code'] == 0){
-        final user = UserInfoData.fromJson(Map<String, dynamic>.from(userInfoRes.data['data']));
-        await _saveAuthState(token, user); 
-        SmartDialog.showToast('登录成功');
-        _handleLoginSuccess();
-      }else{
-        SmartDialog.showToast(userInfoRes.data['message'] ?? '获取用户信息失败');
-      }
+      await GStrorage.localCache.put(LocalCacheKey.accessToken, token);
+      isLoggedIn.value = true;
+      userInfo.value = await Request().get(Api.blogUserInfo).then((response) {
+        if (response.data['code'] == 0) {
+          return UserInfoData.fromJson(Map<String, dynamic>.from(response.data['data']));
+        }
+        return null;
+      });
+      await GStrorage.setting.put('user_info', userInfo.value!);
+      _handleLoginSuccess();
     } else {
       SmartDialog.showToast(res.data['message'] ?? '认证验证失败');
     }
   }
 
   void _handleLoginSuccess() {
+    SmartDialog.showToast('登录成功');
     // 如果是弹窗，关闭弹窗
     if (Get.isDialogOpen ?? false) {
       Get.back();
@@ -136,11 +138,8 @@ class AuthService extends GetxController {
     }
   }
 
-  Future<void> _saveAuthState(String token, UserInfoData user) async {
-    await GStrorage.localCache.put(LocalCacheKey.accessToken, token);
-    await GStrorage.setting.put('user_info', user);
-    isLoggedIn.value = true;
-    userInfo.value = user;
+  Future<void> _saveAuthState(String token) async {
+
   }
 
   Future<void> logout() async {

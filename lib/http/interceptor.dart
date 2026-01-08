@@ -10,9 +10,9 @@ class ApiInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     Box localCache = GStrorage.localCache;
-    var auth = localCache.get('authToken', defaultValue: null);
-    if(auth != null){
-      options.headers['Authorization'] = 'Bearer ${auth.accessToken}';
+    var accessToken = localCache.get(LocalCacheKey.accessToken, defaultValue: null);
+    if(accessToken != null){
+      options.headers['Authorization'] = 'Bearer $accessToken';
     }
     options.headers['Content-Type'] = 'application/json';
     handler.next(options);
