@@ -48,12 +48,10 @@ class GStrorage {
 
   static void regAdapter() {
     Hive.registerAdapter(UserInfoDataAdapter());
-    Hive.registerAdapter(LevelInfoAdapter());
+    Hive.registerAdapter(Web3InfoAdapter());
   }
 
   static Future<void> close() async {
-    // user.compact();
-    // user.close();
     userInfo.compact();
     userInfo.close();
     historyword.compact();

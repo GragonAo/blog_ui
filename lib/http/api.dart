@@ -14,5 +14,7 @@ class Api {
   // 使用web3登录
   static const String blogLoginWeb3 =
       '${HttpString.blogApiBaseUrl}/auth/web3-login';
+  static const String blogUserInfo =
+      '${HttpString.blogApiBaseUrl}/user/info';
       
 }

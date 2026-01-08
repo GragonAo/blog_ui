@@ -6,131 +6,42 @@ part 'info.g.dart';
 class UserInfoData {
   UserInfoData({
     this.isLogin,
-    this.emailVerified,
-    this.face,
-    this.levelInfo,
-    this.mid,
-    this.mobileVerified,
-    this.money,
-    this.moral,
-    this.official,
-    this.officialVerify,
-    this.pendant,
-    this.scores,
-    this.uname,
-    this.vipDueDate,
-    this.vipStatus,
-    this.vipType,
-    this.vipPayType,
-    this.vipThemeType,
-    this.vipLabel,
-    this.vipAvatarSub,
-    this.vipNicknameColor,
-    this.wallet,
-    this.hasShop,
-    this.shopUrl,
+    this.username,
+    this.email,
+    this.web3Info,
   });
   @HiveField(0)
   bool? isLogin;
   @HiveField(1)
-  int? emailVerified;
+  int? username;
   @HiveField(2)
-  String? face;
+  String? email;
   @HiveField(3)
-  LevelInfo? levelInfo;
-  @HiveField(4)
-  int? mid;
-  @HiveField(5)
-  int? mobileVerified;
-  @HiveField(6)
-  double? money;
-  @HiveField(7)
-  int? moral;
-  @HiveField(8)
-  Map? official;
-  @HiveField(9)
-  Map? officialVerify;
-  @HiveField(10)
-  Map? pendant;
-  @HiveField(11)
-  int? scores;
-  @HiveField(12)
-  String? uname;
-  @HiveField(13)
-  int? vipDueDate;
-  @HiveField(14)
-  int? vipStatus;
-  @HiveField(15)
-  int? vipType;
-  @HiveField(16)
-  int? vipPayType;
-  @HiveField(17)
-  int? vipThemeType;
-  @HiveField(18)
-  Map? vipLabel;
-  @HiveField(19)
-  int? vipAvatarSub;
-  @HiveField(20)
-  String? vipNicknameColor;
-  @HiveField(21)
-  Map? wallet;
-  @HiveField(22)
-  bool? hasShop;
-  @HiveField(23)
-  String? shopUrl;
+  Web3Info? web3Info;
 
   UserInfoData.fromJson(Map<String, dynamic> json) {
     isLogin = json['isLogin'] ?? false;
-    emailVerified = json['email_verified'];
-    face = json['face'];
-    levelInfo = json['level_info'] != null
-        ? LevelInfo.fromJson(json['level_info'])
-        : LevelInfo();
-    mid = json['mid'];
-    mobileVerified = json['mobile_verified'];
-    money = json['money'] is int ? json['money'].toDouble() : json['money'];
-    moral = json['moral'];
-    official = json['official'];
-    officialVerify = json['officialVerify'];
-    pendant = json['pendant'];
-    scores = json['scores'];
-    uname = json['uname'];
-    vipDueDate = json['vipDueDate'];
-    vipStatus = json['vipStatus'];
-    vipType = json['vipType'];
-    vipPayType = json['vip_pay_type'];
-    vipThemeType = json['vip_theme_type'];
-    vipLabel = json['vip_label'];
-    vipAvatarSub = json['vip_avatar_subscript'];
-    vipNicknameColor = json['vip_nickname_color'];
-    wallet = json['wallet'];
-    hasShop = json['has_shop'];
-    shopUrl = json['shop_url'];
+    username = json['username'];
+    email = json['email'];
+    web3Info = json['web3_info'] != null
+        ? Web3Info.fromJson(json['web3_info'])
+        : Web3Info();
   }
 }
 
 @HiveType(typeId: 5)
-class LevelInfo {
-  LevelInfo({
-    this.currentLevel,
-    this.currentMin,
-    this.currentExp,
-    this.nextExp,
+class Web3Info {
+  Web3Info({
+    this.chainId,
+    this.address
   });
   @HiveField(0)
-  int? currentLevel;
+  int? chainId;
   @HiveField(1)
-  int? currentMin;
-  @HiveField(2)
-  int? currentExp;
-  @HiveField(3)
-  int? nextExp;
+  String? address;
 
-  LevelInfo.fromJson(Map<String, dynamic> json) {
-    currentLevel = json['current_level'];
-    currentMin = json['current_min'];
-    currentExp = json['current_exp'];
-    nextExp =
-        json['current_level'] == 6 ? json['current_exp'] : json['next_exp'];
+  Web3Info.fromJson(Map<String, dynamic> json) {
+    chainId = json['chain_id'];
+    address = json['address'];
   }
 }

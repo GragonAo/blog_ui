@@ -88,12 +88,15 @@ class AuthService extends GetxController {
 
     if (res.data['code'] == 0) {
       final token = res.data['data']['access_token'].toString();
-      // 这里可以根据后端返回填充用户信息
-      await _saveAuthState(token, UserInfoData()); 
-      SmartDialog.showToast('登录成功');
-      
-      // 处理登录后的导航
-      _handleLoginSuccess();
+      final userInfoRes = await Request().get(Api.blogUserInfo);
+      if(userInfoRes.data['code'] == 0){
+        final user = UserInfoData.fromJson(Map<String, dynamic>.from(userInfoRes.data['data']));
+        await _saveAuthState(token, user); 
+        SmartDialog.showToast('登录成功');
+        _handleLoginSuccess();
+      }else{
+        SmartDialog.showToast(userInfoRes.data['message'] ?? '获取用户信息失败');
+      }
     } else {
       SmartDialog.showToast(res.data['message'] ?? '认证验证失败');
     }
@@ -135,7 +138,7 @@ class AuthService extends GetxController {
 
   Future<void> _saveAuthState(String token, UserInfoData user) async {
     await GStrorage.localCache.put(LocalCacheKey.accessToken, token);
-    // await GStrorage.setting.put('user_info', user.toJson()); // 如果需要持久化用户信息
+    await GStrorage.setting.put('user_info', user);
     isLoggedIn.value = true;
     userInfo.value = user;
   }
