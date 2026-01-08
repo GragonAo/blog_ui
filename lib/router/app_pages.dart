@@ -6,6 +6,7 @@ import 'package:blog_ui/pages/discover/discover_page.dart';
 import 'package:blog_ui/pages/notification/notifications_page.dart';
 import 'package:blog_ui/pages/profile/profile_page.dart';
 import 'package:blog_ui/widgets/app_layout/app_layout.dart';
+import 'package:blog_ui/middlewares/auth_middleware.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -35,6 +36,7 @@ class Routes {
     CustomGetPage(
       name: '/profile',
       page: () => const AppLayout(child: ProfilePage()),
+      middlewares: [AuthMiddleware()],
     ),
     // 登录页
     CustomGetPage(name: '/login', page: () => const LoginPage()),
@@ -46,6 +48,7 @@ class CustomGetPage extends GetPage<dynamic> {
     required super.name,
     required super.page,
     this.fullscreen,
+    super.middlewares,
     super.transitionDuration = Duration.zero, // 禁用切换动画
   }) : super(
           curve: Curves.linear,

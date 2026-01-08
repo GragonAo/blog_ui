@@ -10,7 +10,6 @@
 build/
 
 # 符号链接与导出
-/lib/generated_plugin_registrant.dart
 
 # ----------------------------------------------------------------------------
 # 操作系统/编译产物 (Android, iOS, Desktop)

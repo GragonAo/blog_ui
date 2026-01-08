@@ -1,6 +1,6 @@
+import 'package:blog_ui/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../services/auth_service.dart';
 
 /// 路由认证中间件 - 保护需要登录的路由
 class AuthMiddleware extends GetMiddleware {
@@ -13,12 +13,17 @@ class AuthMiddleware extends GetMiddleware {
     final authService = Get.find<AuthService>();
     
     if (!authService.isLoggedIn.value) {
-      // 未登录，重定向到登录页
+      // 未登录，保存原始路由并重定向到登录页
       Get.snackbar(
         '需要登录',
         '请先登录后再访问此页面',
         duration: const Duration(seconds: 2),
       );
+      
+      // 保存原始路由，登录成功后可以返回
+      if (route != null && route != '/login') {
+        Get.parameters['redirect'] = route;
+      }
       
       return const RouteSettings(name: '/login');
     }

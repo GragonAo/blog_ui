@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:blog_ui/models/post_model.dart';
-import 'layout/mobile_home.dart';
-import 'layout/desktop_home.dart';
+import 'package:blog_ui/widgets/blog_card.dart';
+import 'package:blog_ui/pages/post/post_detail_page.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
-/// 首页 - 响应式容器
-/// 
-/// 根据屏幕宽度自动选择桌面或移动端实现：
-/// - 桌面端（>900px）：DesktopHome
-/// - 移动端（≤900px）：MobileHome
-class HomePage extends StatelessWidget {
+/// 首页 - 响应式布局
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _activeTab = 0;
 
   static const String _demoContent = r'''
 # Flutter 瀑布流 + 小红书风格
@@ -46,15 +52,203 @@ class HomePage extends StatelessWidget {
     // ... 可以根据需要继续添加 Post 数据
   ];
 
+  static const List<String> _categories = [
+    '模拟人生',
+    '科技',
+    '旅行',
+    '美食',
+    '生活',
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width > 900;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width > 900;
+    final crossAxisCount = isDesktop ? 5 : 2;
+    final horizontalPadding = isDesktop ? 40.0 : 12.0;
+    final spacing = isDesktop ? 20.0 : 14.0;
 
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: isDesktop ? 1400 : double.infinity),
+          child: CustomScrollView(
+            slivers: [
+              // 顶部区域
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    isDesktop ? 24 : 25,
+                    horizontalPadding,
+                    isDesktop ? 0 : 16,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSearchBar(isDesktop),
+                      SizedBox(height: isDesktop ? 20 : 14),
+                      _buildTabs(isDesktop),
+                      SizedBox(height: isDesktop ? 24 : 10),
+                    ],
+                  ),
+                ),
+              ),
+              // 瀑布流网格
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  0,
+                  horizontalPadding,
+                  isDesktop ? 40 : 20,
+                ),
+                sliver: SliverMasonryGrid.count(
+                  crossAxisCount: crossAxisCount,
+                  mainAxisSpacing: spacing,
+                  crossAxisSpacing: spacing,
+                  childCount: _posts.length,
+                  itemBuilder: (context, index) {
+                    final post = _posts[index];
+                    return BlogCard(
+                      post: post,
+                      index: index,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PostDetailPage(post: post),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(bool isDesktop) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: isDesktop ? 20 : 14,
+        vertical: isDesktop ? 14 : 10,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isDesktop ? 24 : 16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDesktop ? 0.06 : 0.04),
+            blurRadius: isDesktop ? 16 : 12,
+            offset: Offset(0, isDesktop ? 4 : 6),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(
+            LucideIcons.search,
+            color: Colors.black54,
+            size: isDesktop ? 22 : 20,
+          ),
+          SizedBox(width: isDesktop ? 12 : 8),
+          Expanded(
+            child: Text(
+              isDesktop ? '搜索你想看的灵感...' : '搜索你想看的灵感',
+              style: TextStyle(
+                color: isDesktop ? Colors.black45 : Colors.black54,
+                fontSize: isDesktop ? 15 : 14,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              LucideIcons.camera,
+              color: Colors.black54,
+              size: isDesktop ? 22 : 20,
+            ),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabs(bool isDesktop) {
     if (isDesktop) {
-      return DesktopHome(posts: _posts);
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: _categories.asMap().entries.map((entry) {
+          final index = entry.key;
+          final tab = entry.value;
+          final active = index == _activeTab;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: GestureDetector(
+              onTap: () => setState(() => _activeTab = index),
+              child: AnimatedContainer(
+                duration: 200.ms,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                decoration: BoxDecoration(
+                  color: active ? Colors.black : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: active ? Colors.black : Colors.grey.shade300,
+                  ),
+                ),
+                child: Text(
+                  tab,
+                  style: TextStyle(
+                    color: active ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      );
     }
 
-    return MobileHome(posts: _posts);
+    return SizedBox(
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: _categories.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final active = index == _activeTab;
+          return GestureDetector(
+            onTap: () => setState(() => _activeTab = index),
+            child: AnimatedContainer(
+              duration: 200.ms,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: active ? Colors.black : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: active ? Colors.black : Colors.black.withOpacity(0.08),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  _categories[index],
+                  style: TextStyle(
+                    color: active ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

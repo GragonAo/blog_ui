@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:blog_ui/services/auth_service.dart';
+import 'package:blog_ui/services/auth/auth_service.dart';
 import 'package:blog_ui/services/loggeer.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/services.dart';
