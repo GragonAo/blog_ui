@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../utils/platform/responsive_helper.dart';
 import 'layout/desktop_navigation.dart';
 import 'layout/mobile_navigation.dart';
 
@@ -34,11 +35,10 @@ class AppLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width > 900;
     final currentRoute = Get.currentRoute;
     final activeIndex = _getActiveIndex(currentRoute);
 
-    if (isDesktop) {
+    if (ResponsiveHelper.isDesktop(context)) {
       // 桌面布局
       return Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),

@@ -1,9 +1,8 @@
+import 'package:blog_ui/models/post/post_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-import '../../models/post_model.dart';
 import '../../widgets/markdown_editor_toolbar.dart';
-// import '../widgets/advanced_markdown_body.dart';
 
 class CreatePostPage extends StatefulWidget {
   final Post? post;
@@ -28,7 +27,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.post?.title ?? '');
-    _descriptionController = TextEditingController(text: widget.post?.description ?? '');
+    _descriptionController = TextEditingController(text: widget.post?.summary ?? '');
     _contentController = TextEditingController(text: widget.post?.content ?? '');
     _tagController = TextEditingController(text: _selectedTag);
   }

@@ -1,8 +1,7 @@
+import 'package:blog_ui/models/post/post_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
-import '../models/post_model.dart';
 
 class BlogCard extends StatelessWidget {
   final Post post;
@@ -39,8 +38,8 @@ class BlogCard extends StatelessWidget {
                   Hero(
                     tag: post.id,
                     child: Image.network(
-                      post.imageUrl,
-                      height: post.imageHeight,
+                      post.imageUrl.isNotEmpty ? post.imageUrl[0] : '',
+                      height: 150,
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
@@ -78,7 +77,7 @@ class BlogCard extends StatelessWidget {
                           const Spacer(),
                           Icon(LucideIcons.clock, size: 14, color: Colors.white.withOpacity(0.85)),
                           const SizedBox(width: 4),
-                          Text(post.timeAgo, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text(post.getTimeAgo(), style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -111,12 +110,12 @@ class BlogCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 14,
-                        backgroundImage: NetworkImage(post.authorAvatar),
+                        backgroundImage: NetworkImage(post.author.avatar == null || post.author.avatar!.isEmpty ? "https://via.placeholder.com/150" : post.author.avatar!),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          post.author,
+                          post.author.username,
                           style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.w600),
                         ),
                       ),

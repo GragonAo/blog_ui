@@ -5,6 +5,7 @@ import 'package:blog_ui/pages/login/view.dart';
 import 'package:blog_ui/pages/discover/discover_page.dart';
 import 'package:blog_ui/pages/notification/notifications_page.dart';
 import 'package:blog_ui/pages/profile/profile_page.dart';
+import 'package:blog_ui/pages/post/post_detail_page.dart';
 import 'package:blog_ui/widgets/app_layout/app_layout.dart';
 import 'package:blog_ui/middlewares/auth_middleware.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,12 @@ class Routes {
     ),
     // 登录页
     CustomGetPage(name: '/login', page: () => const LoginPage()),
+    // 文章详情页
+    CustomGetPage(
+      name: '/post/:id',
+      page: () => const PostDetailPage(),
+      fullscreen: true,
+    ),
   ];
 }
 
@@ -49,10 +56,10 @@ class CustomGetPage extends GetPage<dynamic> {
     required super.page,
     this.fullscreen,
     super.middlewares,
-    super.transitionDuration = Duration.zero, // 禁用切换动画
+    super.transitionDuration = Duration.zero,
   }) : super(
           curve: Curves.linear,
-          transition: Transition.noTransition, // 无过渡动画
+          transition: Transition.noTransition,
           showCupertinoParallax: false,
           popGesture: false,
           fullscreenDialog: fullscreen != null && fullscreen,

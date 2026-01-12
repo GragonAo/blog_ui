@@ -1,10 +1,12 @@
+import 'package:blog_ui/models/post/post_model.dart';
+import 'package:blog_ui/models/user/info.dart';
+import 'package:blog_ui/utils/platform/responsive_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:blog_ui/models/post_model.dart';
 import 'package:blog_ui/widgets/blog_card.dart';
-import 'package:blog_ui/pages/post/post_detail_page.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:get/get.dart';
 
 /// 首页 - 响应式布局
 class HomePage extends StatefulWidget {
@@ -22,35 +24,115 @@ class _HomePageState extends State<HomePage> {
 > 这是一篇示例文章，演示 Markdown 里的代码块、公式、列表和引用。
 ''';
 
-  static const List<Post> _posts = [
-    Post(
-      id: 'p1',
-      title: '在京都街头拍下一缕傍晚光影，温柔到不舍得离开',
-      author: '椿小九',
-      authorAvatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80',
-      imageUrl: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80',
-      tag: '旅行日记',
-      timeAgo: '2 小时前',
-      likes: 2480,
-      description: '黄昏下的京都，木质町屋和灯笼的味道。',
-      imageHeight: 240,
-      content: _demoContent,
+static final List<Post> _posts = [
+  Post(
+    id: 'p1',
+    title: '在京都街头拍下一缕傍晚光影',
+    author: UserBaseInfo(
+      id: 1,
+      username: '椿小九',
+      avatar: 'https://images.unsplash.com/...',
     ),
-    Post(
-      id: 'p2',
-      title: '用 Flutter 打造毛玻璃质感的首页，细节拆解',
-      author: '开发者 Gragon',
-      authorAvatar: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=200&q=80',
-      imageUrl: 'https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80',
-      tag: '技术灵感',
-      timeAgo: '5 小时前',
-      likes: 1864,
-      description: '复刻小红书卡片的瀑布流细节。',
-      imageHeight: 200,
-      content: _demoContent,
+    content: '正文内容...',
+    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
+    tag: '旅行日记',
+    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
+    status: PostStatus.published,
+    likes: 2480,
+    viewCount: 5000,
+    createdAt: DateTime.now().subtract(Duration(hours: 2)),
+    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
+  ), Post(
+    id: 'p2',
+    title: '在京都街头拍下一缕傍晚光影',
+    author: UserBaseInfo(
+      id: 1,
+      username: '椿小九',
+      avatar: 'https://images.unsplash.com/...',
     ),
-    // ... 可以根据需要继续添加 Post 数据
-  ];
+    content: '正文内容...',
+    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
+    tag: '旅行日记',
+    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
+    status: PostStatus.published,
+    likes: 2480,
+    viewCount: 5000,
+    createdAt: DateTime.now().subtract(Duration(hours: 2)),
+    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
+  ),
+   Post(
+    id: 'p3',
+    title: '在京都街头拍下一缕傍晚光影',
+    author: UserBaseInfo(
+      id: 1,
+      username: '椿小九',
+      avatar: 'https://images.unsplash.com/...',
+    ),
+    content: '正文内容...',
+    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
+    tag: '旅行日记',
+    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
+    status: PostStatus.published,
+    likes: 2480,
+    viewCount: 5000,
+    createdAt: DateTime.now().subtract(Duration(hours: 2)),
+    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
+  ),
+   Post(
+    id: 'p4',
+    title: '在京都街头拍下一缕傍晚光影',
+    author: UserBaseInfo(
+      id: 1,
+      username: '椿小九',
+      avatar: 'https://images.unsplash.com/...',
+    ),
+    content: '正文内容...',
+    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
+    tag: '旅行日记',
+    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
+    status: PostStatus.published,
+    likes: 2480,
+    viewCount: 5000,
+    createdAt: DateTime.now().subtract(Duration(hours: 2)),
+    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
+  ),
+   Post(
+    id: 'p5',
+    title: '在京都街头拍下一缕傍晚光影',
+    author: UserBaseInfo(
+      id: 1,
+      username: '椿小九',
+      avatar: 'https://images.unsplash.com/...',
+    ),
+    content: '正文内容...',
+    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
+    tag: '旅行日记',
+    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
+    status: PostStatus.published,
+    likes: 2480,
+    viewCount: 5000,
+    createdAt: DateTime.now().subtract(Duration(hours: 2)),
+    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
+  ),
+  Post(
+    id: 'p6',
+    title: '用 Flutter 打造毛玻璃质感',
+    author: UserBaseInfo(
+      id: 2,
+      username: '开发者 Gragon',
+      avatar: 'https://images.unsplash.com/...',
+    ),
+    content: '正文内容...',
+    imageUrl: ['https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80'],
+    tag: '技术灵感',
+    summary: '复刻小红书卡片的瀑布流细节。',
+    status: PostStatus.published,
+    likes: 1864,
+    viewCount: 3200,
+    createdAt: DateTime.now().subtract(Duration(hours: 5)),
+        updatedAt: DateTime.now().subtract(Duration(hours: 1)),
+  ),
+];
 
   static const List<String> _categories = [
     '模拟人生',
@@ -62,17 +144,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width > 900;
-    final crossAxisCount = isDesktop ? 5 : 2;
-    final horizontalPadding = isDesktop ? 40.0 : 12.0;
-    final spacing = isDesktop ? 20.0 : 14.0;
+    final crossAxisCount = ResponsiveHelper.valueByDevice(
+      context: context,
+      mobile: 2,
+      desktop: 5,
+    );
+    final horizontalPadding = ResponsiveHelper.valueByDevice(
+      context: context,
+      mobile: 12.0,
+      desktop: 40.0,
+    );
+    final spacing = ResponsiveHelper.valueByDevice(
+      context: context,
+      mobile: 14.0,
+      desktop: 20.0,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: Center(
         child: Container(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 1400 : double.infinity),
+          constraints: BoxConstraints(
+            maxWidth: ResponsiveHelper.getMaxContentWidth(context),
+          ),
           child: CustomScrollView(
             slivers: [
               // 顶部区域
@@ -80,17 +174,17 @@ class _HomePageState extends State<HomePage> {
                 child: Padding(
                   padding: EdgeInsets.fromLTRB(
                     horizontalPadding,
-                    isDesktop ? 24 : 25,
+                    ResponsiveHelper.valueByDevice(context: context, mobile: 25.0, desktop: 24.0),
                     horizontalPadding,
-                    isDesktop ? 0 : 16,
+                    ResponsiveHelper.valueByDevice(context: context, mobile: 16.0, desktop: 0.0),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSearchBar(isDesktop),
-                      SizedBox(height: isDesktop ? 20 : 14),
-                      _buildTabs(isDesktop),
-                      SizedBox(height: isDesktop ? 24 : 10),
+                      _buildSearchBar(context),
+                      SizedBox(height: ResponsiveHelper.valueByDevice(context: context, mobile: 14.0, desktop: 20.0)),
+                      _buildTabs(context),
+                      SizedBox(height: ResponsiveHelper.valueByDevice(context: context, mobile: 10.0, desktop: 24.0)),
                     ],
                   ),
                 ),
@@ -101,7 +195,7 @@ class _HomePageState extends State<HomePage> {
                   horizontalPadding,
                   0,
                   horizontalPadding,
-                  isDesktop ? 40 : 20,
+                  ResponsiveHelper.valueByDevice(context: context, mobile: 20.0, desktop: 40.0),
                 ),
                 sliver: SliverMasonryGrid.count(
                   crossAxisCount: crossAxisCount,
@@ -113,11 +207,9 @@ class _HomePageState extends State<HomePage> {
                     return BlogCard(
                       post: post,
                       index: index,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PostDetailPage(post: post),
-                        ),
+                      onTap: () => Get.toNamed(
+                        '/post/${post.id}',
+                        arguments: post,
                       ),
                     );
                   },
@@ -130,7 +222,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSearchBar(bool isDesktop) {
+  Widget _buildSearchBar(BuildContext context) {
+    final isDesktop = ResponsiveHelper.isDesktop(context);
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isDesktop ? 20 : 14,
@@ -177,7 +270,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTabs(bool isDesktop) {
+  Widget _buildTabs(BuildContext context) {
+    final isDesktop = ResponsiveHelper.isDesktop(context);
     if (isDesktop) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,

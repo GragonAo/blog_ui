@@ -45,3 +45,22 @@ class Web3Info {
     address = json['address'];
   }
 }
+
+class UserBaseInfo {
+  final int id;
+  final String username;
+  final String? avatar;
+  UserBaseInfo({
+    required this.id,
+    required this.username,
+    this.avatar,
+  });
+
+  factory UserBaseInfo.fromJson(Map<String, dynamic> json) {
+    return UserBaseInfo(
+      id: json['id'] as int,
+      username: json['username'] as String,
+      avatar: json['avatar'] as String?,
+    );
+  }
+}
