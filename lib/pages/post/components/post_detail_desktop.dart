@@ -1,4 +1,4 @@
-import 'package:blog_ui/models/post/post_model.dart';
+import 'package:blog_ui/models/articles/article_model.dart';
 import 'package:blog_ui/widgets/advanced_markdown_body.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -7,9 +7,9 @@ import 'comment_section.dart';
 
 /// PC端文章详情页面布局
 class PostDetailDesktop extends StatelessWidget {
-  final Post post;
+  final Article article;
 
-  const PostDetailDesktop({super.key, required this.post});
+  const PostDetailDesktop({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,12 @@ class PostDetailDesktop extends StatelessWidget {
                           ),
                           child: AspectRatio(
                             aspectRatio: 16 / 9,
-                            child: Image.network(post.imageUrl[0], fit: BoxFit.cover),
+                            child: Image.network(
+                              article.coverUrls.isNotEmpty 
+                                  ? article.coverUrls.first 
+                                  : 'https://via.placeholder.com/800x450', 
+                              fit: BoxFit.cover
+                            ),
                           ),
                         ),
                         // 文章内容
@@ -79,7 +84,7 @@ class PostDetailDesktop extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  post.tag,
+                                  article.tags.isNotEmpty ? article.tags.first : '无标签',
                                   style: TextStyle(
                                     color: Colors.red.shade400,
                                     fontSize: 12,
@@ -90,7 +95,7 @@ class PostDetailDesktop extends StatelessWidget {
                               const SizedBox(height: 16),
                               // 标题
                               Text(
-                                post.title,
+                                article.title,
                                 style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -101,7 +106,7 @@ class PostDetailDesktop extends StatelessWidget {
                               const SizedBox(height: 12),
                               // 时间
                               Text(
-                                post.getTimeAgo(),
+                                article.getTimeAgo(),
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey.shade600,
@@ -110,7 +115,7 @@ class PostDetailDesktop extends StatelessWidget {
                               const Divider(height: 32),
                               // 描述
                               Text(
-                                post.summary,
+                                article.description,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   height: 1.8,
@@ -119,7 +124,7 @@ class PostDetailDesktop extends StatelessWidget {
                               ),
                               const SizedBox(height: 24),
                               // Markdown内容
-                              AdvancedMarkdownBody(data: post.content),
+                              AdvancedMarkdownBody(data: article.content),
                               const SizedBox(height: 32),
                               // 互动栏
                               Row(
@@ -127,7 +132,7 @@ class PostDetailDesktop extends StatelessWidget {
                                   DesktopActionButton(
                                     icon: LucideIcons.heart,
                                     label: '喜欢',
-                                    value: post.likes.toString(),
+                                    value: article.likes.toString(),
                                   ),
                                   const SizedBox(width: 16),
                                   const DesktopActionButton(
@@ -180,11 +185,15 @@ class PostDetailDesktop extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 40,
-                            backgroundImage: NetworkImage(post.author.avatar == null || post.author.avatar!.isEmpty ? "https://via.placeholder.com/150" : post.author.avatar!),
+                            backgroundImage: NetworkImage(
+                                article.author.avatar == null || article.author.avatar!.isEmpty 
+                                    ? "https://via.placeholder.com/150" 
+                                    : article.author.avatar!
+                            ),
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            post.author.username,
+                            article.author.username,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -193,7 +202,7 @@ class PostDetailDesktop extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '分享于 ${post.getTimeAgo()}',
+                            '分享于 ${article.getTimeAgo()}',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey.shade600,

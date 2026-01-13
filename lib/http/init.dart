@@ -168,6 +168,58 @@ class Request {
   }
 
   /*
+   * put请求
+   */
+  put(url, {data, queryParameters, options, cancelToken, extra}) async {
+    Response response;
+    try {
+      response = await dio.put(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        options: options ?? Options(contentType: Headers.jsonContentType),
+        cancelToken: cancelToken,
+      );
+      return response;
+    } on DioException catch (e) {
+      Response errResponse = Response(
+        data: {
+          'message': await ApiInterceptor.dioError(e)
+        },
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      );
+      return errResponse;
+    }
+  }
+
+  /*
+   * delete请求
+   */
+  delete(url, {data, queryParameters, options, cancelToken, extra}) async {
+    Response response;
+    try {
+      response = await dio.delete(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+      );
+      return response;
+    } on DioException catch (e) {
+      Response errResponse = Response(
+        data: {
+          'message': await ApiInterceptor.dioError(e)
+        },
+        statusCode: 200,
+        requestOptions: RequestOptions(),
+      );
+      return errResponse;
+    }
+  }
+
+  /*
    * 下载文件
    */
   downloadFile(urlPath, savePath) async {

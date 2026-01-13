@@ -17,4 +17,14 @@ class Api {
   static const String blogUserInfo =
       '${HttpString.blogApiBaseUrl}/user/info';
       
+  static const String blogArticleList =
+      '${HttpString.blogApiBaseUrl}/article/list';
+  static const String blogArticleDetail =
+      '${HttpString.blogApiBaseUrl}/article/detail';
+  static const String blogArticleCreate =
+      '${HttpString.blogApiBaseUrl}/article/create';
+  static const String blogArticleUpdate =
+      '${HttpString.blogApiBaseUrl}/article/update';
+  static const String blogArticleDelete =
+      '${HttpString.blogApiBaseUrl}/article/delete';
 }

@@ -1,14 +1,14 @@
-import 'package:blog_ui/models/post/post_model.dart';
+import 'package:blog_ui/models/articles/article_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class BlogCard extends StatelessWidget {
-  final Post post;
+  final Article article;
   final int index;
   final VoidCallback onTap;
 
-  const BlogCard({super.key, required this.post, required this.index, required this.onTap});
+  const BlogCard({super.key, required this.article, required this.index, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +36,9 @@ class BlogCard extends StatelessWidget {
               child: Stack(
                 children: [
                   Hero(
-                    tag: post.id,
+                    tag: article.id,
                     child: Image.network(
-                      post.imageUrl.isNotEmpty ? post.imageUrl[0] : '',
+                      article.coverUrls.isNotEmpty ? article.coverUrls[0] : 'https://via.placeholder.com/800x450',
                       height: 150,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -73,11 +73,11 @@ class BlogCard extends StatelessWidget {
                         children: [
                           Icon(LucideIcons.heart, size: 14, color: Colors.white.withOpacity(0.9)),
                           const SizedBox(width: 4),
-                          Text('${post.likes}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text('${article.likes}', style: const TextStyle(color: Colors.white, fontSize: 12)),
                           const Spacer(),
                           Icon(LucideIcons.clock, size: 14, color: Colors.white.withOpacity(0.85)),
                           const SizedBox(width: 4),
-                          Text(post.getTimeAgo(), style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Text(article.getTimeAgo(), style: const TextStyle(color: Colors.white, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -96,11 +96,13 @@ class BlogCard extends StatelessWidget {
                       color: theme.colorScheme.primary.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(50),
                     ),
-                    child: Text(post.tag, style: TextStyle(color: theme.colorScheme.primary, fontSize: 11, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      article.tags.isNotEmpty ? article.tags.first : '无标签',
+                       style: TextStyle(color: theme.colorScheme.primary, fontSize: 11, fontWeight: FontWeight.w600)),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    post.title,
+                    article.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, height: 1.4),
@@ -110,12 +112,13 @@ class BlogCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 14,
-                        backgroundImage: NetworkImage(post.author.avatar == null || post.author.avatar!.isEmpty ? "https://via.placeholder.com/150" : post.author.avatar!),
+                        backgroundImage: NetworkImage(
+                            article.author.avatar == null || article.author.avatar!.isEmpty ? "https://via.placeholder.com/150" : article.author.avatar!),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          post.author.username,
+                          article.author.username,
                           style: const TextStyle(fontSize: 12, color: Colors.black87, fontWeight: FontWeight.w600),
                         ),
                       ),

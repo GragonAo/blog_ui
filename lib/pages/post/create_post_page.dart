@@ -1,13 +1,14 @@
-import 'package:blog_ui/models/post/post_model.dart';
+import 'package:blog_ui/models/articles/article_model.dart';
+import 'package:blog_ui/http/index.dart'; // Import ArticleHttp
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../widgets/markdown_editor_toolbar.dart';
 
 class CreatePostPage extends StatefulWidget {
-  final Post? post;
+  final Article? article;
 
-  const CreatePostPage({super.key, this.post});
+  const CreatePostPage({super.key, this.article});
 
   @override
   State<CreatePostPage> createState() => _CreatePostPageState();
@@ -26,10 +27,16 @@ class _CreatePostPageState extends State<CreatePostPage> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.post?.title ?? '');
-    _descriptionController = TextEditingController(text: widget.post?.summary ?? '');
-    _contentController = TextEditingController(text: widget.post?.content ?? '');
+    _titleController = TextEditingController(text: widget.article?.title ?? '');
+    _descriptionController = TextEditingController(text: widget.article?.description ?? '');
+    _contentController = TextEditingController(text: widget.article?.content ?? '');
+    if (widget.article?.tags.isNotEmpty == true) {
+      _selectedTag = widget.article!.tags.first;
+    }
     _tagController = TextEditingController(text: _selectedTag);
+    if (widget.article?.coverUrls.isNotEmpty == true) {
+      _selectedImage = widget.article!.coverUrls.first;
+    }
   }
 
   @override
@@ -41,7 +48,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
     super.dispose();
   }
 
-  void _publishPost() {
+  void _publishPost() async {
     if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('请输入文章标题')),
@@ -56,14 +63,39 @@ class _CreatePostPageState extends State<CreatePostPage> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('文章发布成功！')),
-    );
+    try {
+      if (widget.article == null) {
+        await ArticleHttp.createArticle(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          content: _contentController.text,
+          coverUrls: [_selectedImage],
+        );
+      } else {
+        await ArticleHttp.updateArticle(
+          id: widget.article!.id,
+          title: _titleController.text,
+          description: _descriptionController.text,
+          content: _contentController.text,
+          coverUrls: [_selectedImage],
+        );
+      }
 
-    // 延迟后返回
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) Navigator.pop(context);
-    });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('文章发布成功！')),
+      );
+
+      // 延迟后返回
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) Navigator.pop(context);
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('文章发布失败: $e')),
+      );
+    }
   }
 
   void _saveDraft() {
@@ -84,7 +116,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.post != null ? '编辑文章' : '发布文章',
+          widget.article != null ? '编辑文章' : '发布文章',
           style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w700),
         ),
         actions: [

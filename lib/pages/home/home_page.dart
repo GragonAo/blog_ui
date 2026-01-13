@@ -1,5 +1,5 @@
-import 'package:blog_ui/models/post/post_model.dart';
-import 'package:blog_ui/models/user/info.dart';
+import 'package:blog_ui/models/articles/article_model.dart';
+import 'package:blog_ui/http/index.dart'; // Import ArticleHttp
 import 'package:blog_ui/utils/platform/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:blog_ui/widgets/blog_card.dart';
@@ -18,121 +18,38 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _activeTab = 0;
+  List<Article> _articles = [];
+  bool _isLoading = true;
 
-  static const String _demoContent = r'''
-# Flutter 瀑布流 + 小红书风格
-> 这是一篇示例文章，演示 Markdown 里的代码块、公式、列表和引用。
-''';
+  @override
+  void initState() {
+    super.initState();
+    _loadArticles();
+  }
 
-static final List<Post> _posts = [
-  Post(
-    id: 'p1',
-    title: '在京都街头拍下一缕傍晚光影',
-    author: UserBaseInfo(
-      id: 1,
-      username: '椿小九',
-      avatar: 'https://images.unsplash.com/...',
-    ),
-    content: '正文内容...',
-    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
-    tag: '旅行日记',
-    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
-    status: PostStatus.published,
-    likes: 2480,
-    viewCount: 5000,
-    createdAt: DateTime.now().subtract(Duration(hours: 2)),
-    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
-  ), Post(
-    id: 'p2',
-    title: '在京都街头拍下一缕傍晚光影',
-    author: UserBaseInfo(
-      id: 1,
-      username: '椿小九',
-      avatar: 'https://images.unsplash.com/...',
-    ),
-    content: '正文内容...',
-    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
-    tag: '旅行日记',
-    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
-    status: PostStatus.published,
-    likes: 2480,
-    viewCount: 5000,
-    createdAt: DateTime.now().subtract(Duration(hours: 2)),
-    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
-  ),
-   Post(
-    id: 'p3',
-    title: '在京都街头拍下一缕傍晚光影',
-    author: UserBaseInfo(
-      id: 1,
-      username: '椿小九',
-      avatar: 'https://images.unsplash.com/...',
-    ),
-    content: '正文内容...',
-    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
-    tag: '旅行日记',
-    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
-    status: PostStatus.published,
-    likes: 2480,
-    viewCount: 5000,
-    createdAt: DateTime.now().subtract(Duration(hours: 2)),
-    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
-  ),
-   Post(
-    id: 'p4',
-    title: '在京都街头拍下一缕傍晚光影',
-    author: UserBaseInfo(
-      id: 1,
-      username: '椿小九',
-      avatar: 'https://images.unsplash.com/...',
-    ),
-    content: '正文内容...',
-    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
-    tag: '旅行日记',
-    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
-    status: PostStatus.published,
-    likes: 2480,
-    viewCount: 5000,
-    createdAt: DateTime.now().subtract(Duration(hours: 2)),
-    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
-  ),
-   Post(
-    id: 'p5',
-    title: '在京都街头拍下一缕傍晚光影',
-    author: UserBaseInfo(
-      id: 1,
-      username: '椿小九',
-      avatar: 'https://images.unsplash.com/...',
-    ),
-    content: '正文内容...',
-    imageUrl: ['https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80'],
-    tag: '旅行日记',
-    summary: '黄昏下的京都，木质町屋和灯笼的味道。',
-    status: PostStatus.published,
-    likes: 2480,
-    viewCount: 5000,
-    createdAt: DateTime.now().subtract(Duration(hours: 2)),
-    updatedAt: DateTime.now().subtract(Duration(hours: 1)),
-  ),
-  Post(
-    id: 'p6',
-    title: '用 Flutter 打造毛玻璃质感',
-    author: UserBaseInfo(
-      id: 2,
-      username: '开发者 Gragon',
-      avatar: 'https://images.unsplash.com/...',
-    ),
-    content: '正文内容...',
-    imageUrl: ['https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=900&q=80'],
-    tag: '技术灵感',
-    summary: '复刻小红书卡片的瀑布流细节。',
-    status: PostStatus.published,
-    likes: 1864,
-    viewCount: 3200,
-    createdAt: DateTime.now().subtract(Duration(hours: 5)),
-        updatedAt: DateTime.now().subtract(Duration(hours: 1)),
-  ),
-];
+  Future<void> _loadArticles() async {
+    try {
+      final result = await ArticleHttp.getArticleList(
+        page: 1, 
+        pageSize: 20
+      );
+      if (mounted) {
+        setState(() {
+          _articles = result.list;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load articles: $e')),
+        );
+      }
+    }
+  }
 
   static const List<String> _categories = [
     '模拟人生',
@@ -141,6 +58,7 @@ static final List<Post> _posts = [
     '美食',
     '生活',
   ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +107,25 @@ static final List<Post> _posts = [
                   ),
                 ),
               ),
+              if (_isLoading)
+                const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(40.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                )
+              else if (_articles.isEmpty)
+                const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(40.0),
+                      child: Text('暂无文章', style: TextStyle(color: Colors.grey)),
+                    ),
+                  ),
+                )
+              else
               // 瀑布流网格
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
@@ -201,15 +138,14 @@ static final List<Post> _posts = [
                   crossAxisCount: crossAxisCount,
                   mainAxisSpacing: spacing,
                   crossAxisSpacing: spacing,
-                  childCount: _posts.length,
+                  childCount: _articles.length,
                   itemBuilder: (context, index) {
-                    final post = _posts[index];
+                    final article = _articles[index];
                     return BlogCard(
-                      post: post,
+                      article: article,
                       index: index,
                       onTap: () => Get.toNamed(
-                        '/post/${post.id}',
-                        arguments: post,
+                        '/post/${article.id}'
                       ),
                     );
                   },

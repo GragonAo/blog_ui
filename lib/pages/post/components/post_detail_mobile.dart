@@ -1,4 +1,4 @@
-import 'package:blog_ui/models/post/post_model.dart';
+import 'package:blog_ui/models/articles/article_model.dart';
 import 'package:blog_ui/widgets/advanced_markdown_body.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -10,9 +10,9 @@ import 'comment_section.dart';
 
 /// 移动端文章详情页面布局
 class PostDetailMobile extends StatelessWidget {
-  final Post post;
+  final Article article;
 
-  const PostDetailMobile({super.key, required this.post});
+  const PostDetailMobile({super.key, required this.article});
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +39,13 @@ class PostDetailMobile extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Hero(
-                    tag: post.id,
-                    child: Image.network(post.imageUrl[0], fit: BoxFit.cover),
+                    tag: article.id,
+                    child: Image.network(
+                      article.coverUrls.isNotEmpty 
+                          ? article.coverUrls.first 
+                          : 'https://via.placeholder.com/800x450',
+                      fit: BoxFit.cover
+                    ),
                   ),
                   Container(
                     decoration: const BoxDecoration(
@@ -61,9 +66,9 @@ class PostDetailMobile extends StatelessWidget {
                         CircleAvatar(
                           radius: 22,
                           backgroundImage: NetworkImage(
-                            post.author.avatar == null || post.author.avatar!.isEmpty 
+                            article.author.avatar == null || article.author.avatar!.isEmpty 
                               ? "https://via.placeholder.com/150" 
-                              : post.author.avatar!
+                              : article.author.avatar!
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -73,7 +78,7 @@ class PostDetailMobile extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                post.author.username,
+                                article.author.username,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -82,7 +87,7 @@ class PostDetailMobile extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                post.getTimeAgo(),
+                                article.getTimeAgo(),
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
                                   fontSize: 12,
@@ -103,7 +108,7 @@ class PostDetailMobile extends StatelessWidget {
                               const Icon(LucideIcons.heart, color: Colors.white, size: 18),
                               const SizedBox(width: 6),
                               Text(
-                                '${post.likes}',
+                                '${article.likes}',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 13,
@@ -133,13 +138,13 @@ class PostDetailMobile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      post.tag,
+                      article.tags.isNotEmpty ? article.tags.first : '无标签',
                       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    post.title,
+                    article.title,
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, height: 1.3),
                   ),
                   const SizedBox(height: 14),
@@ -148,25 +153,25 @@ class PostDetailMobile extends StatelessWidget {
                       Icon(LucideIcons.mapPin, size: 16, color: Colors.black.withOpacity(0.5)),
                       const SizedBox(width: 6),
                       Text(
-                        '分享于 ${post.getTimeAgo()}',
+                        '分享于 ${article.getTimeAgo()}',
                         style: const TextStyle(fontSize: 13, color: Colors.black54),
                       ),
                     ],
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    post.summary,
+                    article.description,
                     style: const TextStyle(fontSize: 15, height: 1.6, color: Colors.black87),
                   ),
                   const SizedBox(height: 14),
                   AdvancedMarkdownBody(
-                    data: post.content,
+                    data: article.content,
                   ),
                   const SizedBox(height: 26),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      StatChip(icon: LucideIcons.heart, label: '喜欢', value: post.likes.toString()),
+                      StatChip(icon: LucideIcons.heart, label: '喜欢', value: article.likes.toString()),
                       const StatChip(icon: LucideIcons.messageCircle, label: '评论', value: '183'),
                       const StatChip(icon: LucideIcons.share2, label: '分享', value: '收藏'),
                     ],

@@ -1,4 +1,5 @@
-import 'package:blog_ui/models/post/post_model.dart';
+import 'package:blog_ui/models/articles/article_model.dart';
+import 'package:blog_ui/http/index.dart'; // Import ArticleHttp
 import 'package:blog_ui/utils/platform/responsive_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,7 +19,7 @@ class PostDetailPage extends StatefulWidget {
 }
 
 class _PostDetailPageState extends State<PostDetailPage> {
-  Post? _post;
+  Article? _article;
   bool _isLoading = true;
   String? _error;
 
@@ -41,25 +42,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
         return;
       }
 
-      // TODO: 这里应该调用后端 API 获取数据
-      // 例如: final post = await PostApi.getPostById(postId);
-      
-      // 模拟网络请求延迟
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // 临时使用 Get.arguments 传递的数据，后期替换为 API 请求
-      final post = Get.arguments as Post?;
-      
-      if (post == null) {
-        setState(() {
-          _error = '文章不存在';
-          _isLoading = false;
-        });
-        return;
-      }
+      final article = await ArticleHttp.getArticleDetail(postId);
 
       setState(() {
-        _post = post;
+        _article = article;
         _isLoading = false;
       });
     } catch (e) {
@@ -76,7 +62,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       return const PostDetailSkeleton();
     }
 
-    if (_error != null || _post == null) {
+    if (_error != null || _article == null) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -108,9 +94,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
     }
 
     if (ResponsiveHelper.isDesktop(context)) {
-      return PostDetailDesktop(post: _post!);
+      return PostDetailDesktop(article: _article!);
     } else {
-      return PostDetailMobile(post: _post!);
+      return PostDetailMobile(article: _article!);
     }
   }
 }
